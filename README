@@ -1,7 +1,7 @@
 = AssetPackager
 
-Easily merge, compress, cache, and version your javascript
-and CSS with Ruby on Rails!
+Easily merge, compress, cache, and version your JavaScript
+and CSS Stylesheets with Ruby on Rails!
 
 == Description
 
@@ -39,6 +39,7 @@ http://www.crockford.com/javascript/jsmin.html
 * Merges and compresses javascript and css when running in production.
 * Uses uncompressed originals when running in development.
 * Handles caching correctly. (No querystring parameters - filename timestamps)
+* Versions each package individually. Updates to files in one won't re-trigger downloading the others.
 * Uses subversion revision numbers instead of timestamps if within a subversion controlled directory.
 * Guarantees new version will get downloaded the next time you deploy.
 
