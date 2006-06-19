@@ -22,6 +22,8 @@ or subversion revision stamp into the merged file names. Therefore
 files are correctly cached by the browser AND your users always 
 get the latest version when you re-deploy!
 
+* Formerly known as MergeJS.
+
 == Credit
 
 This Rails Plugin was inspired by Cal Henderson's article 
