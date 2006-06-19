@@ -56,6 +56,19 @@ http://www.crockford.com/javascript/jsmin.html
 will need to reorder files under 'base' so dependencies are loaded in correct order. Feel free 
 to rename or create new file packages.
 
+Example from a fresh rails app after running the rake task. (Stylesheets is blank because a default rails app has no stylesheets yet.):
+
+--- 
+javascripts: 
+- base: 
+  - prototype
+  - effects
+  - dragdrop
+  - controls
+  - application
+stylesheets: 
+- base: []
+
 Example with multiple merged files:
 
 ---
@@ -77,7 +90,7 @@ stylesheets:
   - foo
   - bar
 
-3. Run the rake task "asset:packager:build_all" to generate the compressed, merged versions for each package.
+3. Run the rake task "asset:packager:build_all" to generate the compressed, merged versions for each package. Whenever you rearrange the yaml file, you'll need to run this task again. Merging and compressing is expensive, so this is something we want to do once, not every time your app starts. Thats why its a rake task.
 
 4. Use the helper functions whenever including these files in your application. See below for examples.
 
@@ -108,15 +121,14 @@ Now supports symbols and :defaults as well:
 == Stylesheet Examples
 
 Example call:
-  <%= stylesheet_link_merged 'screen', 'header', 'foo', 'bar' %>
+  <%= stylesheet_link_merged 'screen', 'header' %>
 
 In development, this generates:
   <link href="/stylesheets/screen.css" media="screen" rel="Stylesheet" type="text/css" />
   <link href="/stylesheets/header.css" media="screen" rel="Stylesheet" type="text/css" />
-  <link href="/stylesheets/foo.css" media="screen" rel="Stylesheet" type="text/css" />
-  <link href="/stylesheets/bar.css" media="screen" rel="Stylesheet" type="text/css" />
 
-In development this generates:
+In production this generates:
+  <link href="/stylesheets/base_1150729166.css" media="screen" rel="Stylesheet" type="text/css" />
 
 == License
 Copyright (c) 2006 Scott Becker - http://synthesis.sbecker.net
