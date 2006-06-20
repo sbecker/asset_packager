@@ -1,26 +1,27 @@
 = AssetPackager
 
-Easily merge, compress, cache, and version your JavaScript
-and CSS Stylesheets with Ruby on Rails!
+JavaScript and CSS Asset Compression for Production Rails Apps
 
 == Description
 
-When running in production, instead of sending down a dozen 
-javascript and css files full of formatting and comments, 
-this plugin allows you to merge and compress javascript down 
-into one or more files, thus saving download time for your users.
+When it comes time to deploy your new web application, instead of 
+sending down a dozen javascript and css files full of formatting 
+and comments, this Rails plugin makes it simple to merge and 
+compress JavaScript and CSS down into one or more files, increasing 
+speed and saving bandwidth.
 
-But when in development, it would be nice to use the formatted,
-commented and logically separated versions for ease of 
-development and debugging.
+When in development, it allows you to use your original versions 
+and retain formatting and comments for readability and debugging.
 
-This plugin makes it easy to do both.
+Because not all browsers will dependably cache javascript and css 
+files with query string parameters, AssetPackager writes a timestamp 
+or subversion revision stamp (if available) into the merged file names. 
+Therefore files are correctly cached by the browser AND your users 
+always get the latest version when you re-deploy.
 
-Because not all browsers will dependably cache javascript 
-and css files with query string parameters, we write a timestamp 
-or subversion revision stamp into the merged file names. Therefore 
-files are correctly cached by the browser AND your users always 
-get the latest version when you re-deploy!
+This code is released under the MIT license (like Ruby). You’re free 
+to rip it up, enhance it, etc. And if you make any enhancements, 
+I’d like to know so I can add them back in. Thanks!
 
 * Formerly known as MergeJS.
 

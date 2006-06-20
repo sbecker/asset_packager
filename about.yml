@@ -1,6 +1,6 @@
 author: Scott Becker
 name: AssetPackager
-summary: Easily merge, compress, cache, and version JavaScript and CSS stylesheets with Ruby on Rails
+summary: JavaScript and CSS Asset Compression for Production Rails Apps
 homepage: http://synthesis.sbecker.net/pages/asset_packager
 plugin: http://sbecker.net/shared/plugins/asset_packager
 license: MIT
