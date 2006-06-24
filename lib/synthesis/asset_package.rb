@@ -1,21 +1,21 @@
 module Synthesis
   class AssetPackage
     # class variables
-    @asset_packages_yml = $asset_packages_yml || 
+    @@asset_packages_yml = $asset_packages_yml || 
       (File.exists?("#{RAILS_ROOT}/config/asset_packages.yml") ? YAML.load_file("#{RAILS_ROOT}/config/asset_packages.yml") : nil)
   
     # singleton methods
     def self.find_by_type(asset_type)
-      @asset_packages_yml[asset_type].map { |p| self.new(asset_type, p) }
+      @@asset_packages_yml[asset_type].map { |p| self.new(asset_type, p) }
     end
 
     def self.find_by_target(asset_type, target)
-      package_hash = @asset_packages_yml[asset_type].find {|p| p.keys.first == target }
+      package_hash = @@asset_packages_yml[asset_type].find {|p| p.keys.first == target }
       package_hash ? self.new(asset_type, package_hash) : nil
     end
   
     def self.find_by_source(asset_type, source)
-      package_hash = @asset_packages_yml[asset_type].find {|p| p[p.keys.first].include?(source) }
+      package_hash = @@asset_packages_yml[asset_type].find {|p| p[p.keys.first].include?(source) }
       package_hash ? self.new(asset_type, package_hash) : nil
     end
   
@@ -38,14 +38,14 @@ module Synthesis
     end
   
     def self.build_all
-      @asset_packages_yml.keys.each do |asset_type|
-        @asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).build }
+      @@asset_packages_yml.keys.each do |asset_type|
+        @@asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).build }
       end
     end
     
     def self.delete_all
-      @asset_packages_yml.keys.each do |asset_type|
-        @asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).delete_all_builds }
+      @@asset_packages_yml.keys.each do |asset_type|
+        @@asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).delete_all_builds }
       end
     end
     
