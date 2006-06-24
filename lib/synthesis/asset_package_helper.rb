@@ -13,14 +13,21 @@ module Synthesis
       end
 
       sources.collect!{|s| s.to_s}
-      sources = AssetPackage.names_from_sources("javascripts", sources) if RAILS_ENV == "production"
+      sources = (RAILS_ENV == "production" ? 
+        AssetPackage.targets_from_sources("javascripts", sources) : 
+        AssetPackage.sources_from_targets("javascripts", sources))
+        
       sources.collect {|source| javascript_include_tag(source, options) }.join("\n")
     end
 
     def stylesheet_link_merged(*sources)
       options = sources.last.is_a?(Hash) ? sources.pop.stringify_keys : { }
 
-      sources = AssetPackage.names_from_sources("stylesheets", sources) if RAILS_ENV == "production"
+      sources.collect!{|s| s.to_s}
+      sources = (RAILS_ENV == "production" ? 
+        AssetPackage.targets_from_sources("stylesheets", sources) : 
+        AssetPackage.sources_from_targets("stylesheets", sources))
+
       sources.collect { |source|
         source = stylesheet_path(source)
         tag("link", { "rel" => "Stylesheet", "type" => "text/css", "media" => "screen", "href" => source }.merge(options))

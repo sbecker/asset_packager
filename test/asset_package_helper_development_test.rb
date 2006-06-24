@@ -21,11 +21,6 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
 
   def setup
     @controller = Class.new do
-      #def url_for(options, *parameters_for_method_reference)
-      #  url =  "http://www.example.com/"
-      #  url << options[:action].to_s if options and options[:action]
-      #  url
-      #end
       attr_reader :request
       def initialize
         @request = Class.new do
@@ -66,6 +61,16 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
       javascript_include_merged("prototype", "effects", "controls", "not_part_of_a_package", "foo")
   end
 
+  def test_js_by_package_name
+    assert_dom_equal build_js_expected_string("prototype", "effects", "controls", "dragdrop"), 
+      javascript_include_merged(:base)
+  end
+  
+  def test_js_multiple_package_names
+    assert_dom_equal build_js_expected_string("prototype", "effects", "controls", "dragdrop", "foo", "bar", "application"), 
+      javascript_include_merged(:base, :secondary)
+  end
+
   def test_css_basic
     assert_dom_equal build_css_expected_string("screen"),
       stylesheet_link_merged("screen")
@@ -84,6 +89,16 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
   def test_css_multiple_from_same_package
     assert_dom_equal build_css_expected_string("screen", "header", "not_part_of_a_package", "foo", "bar"), 
       stylesheet_link_merged("screen", "header", "not_part_of_a_package", "foo", "bar")
+  end
+
+  def test_css_by_package_name
+    assert_dom_equal build_css_expected_string("screen", "header"), 
+      stylesheet_link_merged(:base)
+  end
+  
+  def test_css_multiple_package_names
+    assert_dom_equal build_css_expected_string("screen", "header", "foo", "bar"), 
+      stylesheet_link_merged(:base, :secondary)
   end
   
 end

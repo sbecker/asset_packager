@@ -72,6 +72,19 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
       javascript_include_merged("prototype", "effects", "controls", "not_part_of_a_package", "foo")
   end
   
+  def test_js_by_package_name
+    package_name = Synthesis::AssetPackage.find_by_target("javascripts", "base").current_file
+    assert_dom_equal build_js_expected_string(package_name), 
+      javascript_include_merged(:base)
+  end
+  
+  def test_js_multiple_package_names
+    package_name1 = Synthesis::AssetPackage.find_by_target("javascripts", "base").current_file
+    package_name2 = Synthesis::AssetPackage.find_by_target("javascripts", "secondary").current_file
+    assert_dom_equal build_js_expected_string(package_name1, package_name2), 
+      javascript_include_merged(:base, :secondary)
+  end
+  
   def test_css_basic
     current_file = Synthesis::AssetPackage.find_by_source("stylesheets", "screen").current_file
     assert_dom_equal build_css_expected_string(current_file),
@@ -100,6 +113,19 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
 
     assert_dom_equal build_css_expected_string(current_file1, "not_part_of_a_package", current_file2), 
       stylesheet_link_merged("screen", "header", "not_part_of_a_package", "foo", "bar")
+  end
+  
+  def test_css_by_package_name
+    package_name = Synthesis::AssetPackage.find_by_target("stylesheets", "base").current_file
+    assert_dom_equal build_css_expected_string(package_name), 
+      stylesheet_link_merged(:base)
+  end
+  
+  def test_css_multiple_package_names
+    package_name1 = Synthesis::AssetPackage.find_by_target("stylesheets", "base").current_file
+    package_name2 = Synthesis::AssetPackage.find_by_target("stylesheets", "secondary").current_file
+    assert_dom_equal build_css_expected_string(package_name1, package_name2), 
+      stylesheet_link_merged(:base, :secondary)
   end
   
 end

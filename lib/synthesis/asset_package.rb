@@ -19,13 +19,22 @@ module Synthesis
       package_hash ? self.new(asset_type, package_hash) : nil
     end
   
-    def self.names_from_sources(asset_type, sources)
+    def self.targets_from_sources(asset_type, sources)
       package_names = Array.new
       sources.each do |source|
-        package = find_by_source(asset_type, source)
+        package = find_by_target(asset_type, source) || find_by_source(asset_type, source)
         package_names << (package ? package.current_file : source)
       end
       package_names.uniq
+    end
+    
+    def self.sources_from_targets(asset_type, targets)
+      source_names = Array.new
+      targets.each do |target|
+        package = find_by_target(asset_type, target)
+        source_names += (package ? package.sources : target.to_a)
+      end
+      source_names.uniq
     end
   
     def self.build_all

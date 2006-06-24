@@ -47,7 +47,7 @@ class AssetPackagerTest < Test::Unit::TestCase
   end
   
   def test_js_names_from_sources
-    package_names = Synthesis::AssetPackage.names_from_sources("javascripts", ["prototype", "effects", "noexist1", "controls", "foo", "noexist2"])
+    package_names = Synthesis::AssetPackage.targets_from_sources("javascripts", ["prototype", "effects", "noexist1", "controls", "foo", "noexist2"])
     assert_equal 4, package_names.length
     assert package_names[0].match(/\Abase_\d+\z/)
     assert_equal package_names[1], "noexist1"
@@ -56,7 +56,7 @@ class AssetPackagerTest < Test::Unit::TestCase
   end
   
   def test_css_names_from_sources
-    package_names = Synthesis::AssetPackage.names_from_sources("stylesheets", ["header", "screen", "noexist1", "foo", "noexist2"])
+    package_names = Synthesis::AssetPackage.targets_from_sources("stylesheets", ["header", "screen", "noexist1", "foo", "noexist2"])
     assert_equal 4, package_names.length
     assert package_names[0].match(/\Abase_\d+\z/)
     assert_equal package_names[1], "noexist1"
