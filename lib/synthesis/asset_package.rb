@@ -115,7 +115,7 @@ module Synthesis
       def get_file_revision(path)
         if File.exists?(path)
           begin
-            `svn info #{path}`[/Revision: (.*?)\n/][/(\d+)/].to_i
+            `svn info #{path}`[/Last Changed Rev: (.*?)\n/][/(\d+)/].to_i
           rescue # use filename timestamp if not in subversion
             File.mtime(path).to_i
           end

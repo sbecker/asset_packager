@@ -39,7 +39,7 @@ module Synthesis
       # used by ActionView::Helpers::AssetTagHelper
       def compute_public_path(source, dir, ext, add_asset_id=true)
         source  = "/#{dir}/#{source}" unless source.first == "/" || source.include?(":")
-        source << ".#{ext}" unless source.split("/").last.include?(".")
+        source << ".#{ext}" unless source.split("/").last =~ /\.(js|css)$/
         source << '?' + rails_asset_id(source) if defined?(RAILS_ROOT) && %r{^[-a-z]+://} !~ source && add_asset_id
         source  = "#{@controller.request.relative_url_root}#{source}" unless %r{^[-a-z]+://} =~ source
         source = ActionController::Base.asset_host + source unless source.include?(":")
