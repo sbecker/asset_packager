@@ -128,8 +128,8 @@ In production, this generates:
   <script type="text/javascript" src="/javascripts/secondary_1150729166.js"></script>
 
 Now supports symbols and :defaults as well:
-<%= javascript_include_merged :defaults %>
-<%= javascript_include_merged :foo, :bar %>
+  <%= javascript_include_merged :defaults %>
+  <%= javascript_include_merged :foo, :bar %>
 
 == Stylesheet Examples
 
