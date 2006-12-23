@@ -134,6 +134,11 @@ In development, this generates:
 In production this generates:
   <link href="/stylesheets/base_1150729166.css" media="screen" rel="Stylesheet" type="text/css" />
 
+== Different CSS Media
+
+All options for stylesheet_link_tag still work, so if you want to specify a different media type:
+  <%= stylesheet_link_merged :secondary, 'media' => 'print' %>
+
 == License
 Copyright (c) 2006 Scott Becker - http://synthesis.sbecker.net
 
