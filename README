@@ -163,12 +163,13 @@ This plugin has a full suite of tests. But you've gotta follow a certain procedu
 > ruby asset_package_helper_development_test.rb # all pass
 > ruby asset_package_helper_production_test.rb # all pass
 
-The first test class, “asset_packager_test.rb” builds all the packages that the next two test classes depend on.
+The first test class, "asset_packager_test.rb" builds all the packages that the next two test classes depend on.
 
-The last two have to be run seperately because they have different RAILS_ENV constant values, which, to my knowledge, can’t be changed once set.
+The last two helper test classes have to be run seperately because they have different RAILS_ENV constant values, which, to my knowledge, can only be set once.
   
 == License
 Copyright (c) 2006 Scott Becker - http://synthesis.sbecker.net
+Contact Email: becker.scott@gmail.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
