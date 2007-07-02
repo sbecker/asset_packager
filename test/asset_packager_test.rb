@@ -7,6 +7,14 @@ $asset_base_path = "#{RAILS_ROOT}/vendor/plugins/asset_packager/test/assets"
 class AssetPackagerTest < Test::Unit::TestCase
   include Synthesis
   
+  def setup
+    Synthesis::AssetPackage.build_all
+  end
+  
+  def teardown
+    Synthesis::AssetPackage.delete_all
+  end
+  
   def test_find_by_type
     js_asset_packages = Synthesis::AssetPackage.find_by_type("javascripts")
     assert_equal 2, js_asset_packages.length
