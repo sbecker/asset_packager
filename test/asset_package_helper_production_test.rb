@@ -19,6 +19,8 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
   include ActionView::Helpers::AssetTagHelper
   include Synthesis::AssetPackageHelper
 
+  cattr_accessor :packages_built
+
   def setup
     @controller = Class.new do
 
@@ -32,6 +34,15 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
       end
 
     end.new
+    
+    build_packages_once
+  end
+  
+  def build_packages_once
+    unless @@packages_built
+      Synthesis::AssetPackage.build_all
+      @@packages_built = true
+    end
   end
   
   def build_js_expected_string(*sources)
