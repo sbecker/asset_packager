@@ -38,20 +38,25 @@ class AssetPackagerTest < Test::Unit::TestCase
     Synthesis::AssetPackage.delete_all
     js_package_names = Dir.new("#{$asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_\d+.js/) }
     css_package_names = Dir.new("#{$asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_\d+.css/) }
+    css_subdir_package_names = Dir.new("#{$asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_\d+.css/) }
     
     assert_equal 0, js_package_names.length
     assert_equal 0, css_package_names.length
+    assert_equal 0, css_subdir_package_names.length
 
     Synthesis::AssetPackage.build_all
     js_package_names = Dir.new("#{$asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_\d+.js/) }.sort
     css_package_names = Dir.new("#{$asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_\d+.css/) }.sort
+    css_subdir_package_names = Dir.new("#{$asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_\d+.css/) }.sort
     
     assert_equal 2, js_package_names.length
     assert_equal 2, css_package_names.length
+    assert_equal 1, css_subdir_package_names.length
     assert js_package_names[0].match(/\Abase_\d+.js\z/)
     assert js_package_names[1].match(/\Asecondary_\d+.js\z/)
     assert css_package_names[0].match(/\Abase_\d+.css\z/)
     assert css_package_names[1].match(/\Asecondary_\d+.css\z/)
+    assert css_subdir_package_names[0].match(/\Astyles_\d+.css\z/)
   end
   
   def test_js_names_from_sources

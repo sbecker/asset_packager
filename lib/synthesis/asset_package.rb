@@ -5,6 +5,10 @@ module Synthesis
       (File.exists?("#{RAILS_ROOT}/config/asset_packages.yml") ? YAML.load_file("#{RAILS_ROOT}/config/asset_packages.yml") : nil)
   
     # singleton methods
+    def self.parse_path(path)
+      /^(?:(.*)\/)?([^\/]+)$/.match(path).to_a
+    end
+  
     def self.find_by_type(asset_type)
       @@asset_packages_yml[asset_type].map { |p| self.new(asset_type, p) }
     end
@@ -15,7 +19,11 @@ module Synthesis
     end
   
     def self.find_by_source(asset_type, source)
-      package_hash = @@asset_packages_yml[asset_type].find {|p| p[p.keys.first].include?(source) }
+      path_parts = parse_path(source)
+      package_hash = @@asset_packages_yml[asset_type].find do |p|
+        key = p.keys.first
+        p[key].include?(path_parts[2]) && (parse_path(key)[1] == path_parts[1])
+      end
       package_hash ? self.new(asset_type, package_hash) : nil
     end
   
@@ -32,7 +40,9 @@ module Synthesis
       source_names = Array.new
       targets.each do |target|
         package = find_by_target(asset_type, target)
-        source_names += (package ? package.sources : target.to_a)
+        source_names += (package ? package.sources.collect do |src|
+          package.target_dir.gsub(/^(.+)$/, '\1/') + src
+        end : target.to_a)
       end
       source_names.uniq
     end
@@ -68,19 +78,23 @@ module Synthesis
     end
     
     # instance methods
-    attr_accessor :asset_type, :target, :sources
+    attr_accessor :asset_type, :target, :target_dir, :sources
   
     def initialize(asset_type, package_hash)
-      @target  = package_hash.keys.first
-      @sources = package_hash[@target]
+      target_parts = self.class.parse_path(package_hash.keys.first)
+      @target_dir = target_parts[1].to_s
+      @target = target_parts[2].to_s
+      @sources = package_hash[package_hash.keys.first]
       @asset_type = asset_type
-      @asset_path = $asset_base_path ? "#{$asset_base_path}/#{@asset_type}" : "#{RAILS_ROOT}/public/#{@asset_type}"
+      @asset_path = ($asset_base_path ? "#{$asset_base_path}/" : "#{RAILS_ROOT}/public/") +
+          "#{@asset_type}#{@target_dir.gsub(/^(.+)$/, '/\1')}"
       @extension = get_extension
       @match_regex = Regexp.new("\\A#{@target}_\\d+.#{@extension}\\z")
     end
   
     def current_file
-      Dir.new(@asset_path).entries.delete_if { |x| ! (x =~ @match_regex) }.sort.reverse[0].chomp(".#{@extension}")
+      @target_dir.gsub(/^(.+)$/, '\1/') +
+          Dir.new(@asset_path).entries.delete_if { |x| ! (x =~ @match_regex) }.sort.reverse[0].chomp(".#{@extension}")
     end
 
     def build
