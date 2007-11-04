@@ -9,6 +9,10 @@ module Synthesis
     # singleton methods
     class << self
       
+      def merge_environments
+        @@merge_environments || ["production"]
+      end
+      
       def parse_path(path)
         /^(?:(.*)\/)?([^\/]+)$/.match(path).to_a
       end
@@ -81,10 +85,6 @@ module Synthesis
         end
       end
 
-      def merge_environments
-        @@merge_environments || ["production"]
-      end
-      
     end
     
     # instance methods
