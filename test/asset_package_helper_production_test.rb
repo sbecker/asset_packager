@@ -1,9 +1,9 @@
 $:.unshift(File.dirname(__FILE__) + '/../lib')
 
-ENV['RAILS_ENV'] = "production"
 require File.dirname(__FILE__) + '/../../../../config/environment'
 require 'test/unit'
 require 'rubygems'
+require 'mocha'
 
 require 'action_controller/test_process'
 
@@ -22,6 +22,9 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
   cattr_accessor :packages_built
 
   def setup
+    Synthesis::AssetPackage.any_instance.stubs(:log)
+    self.stubs(:should_merge?).returns(true)
+
     @controller = Class.new do
 
       attr_reader :request
@@ -34,10 +37,10 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
       end
 
     end.new
-    
+
     build_packages_once
   end
-  
+
   def build_packages_once
     unless @@packages_built
       Synthesis::AssetPackage.build_all

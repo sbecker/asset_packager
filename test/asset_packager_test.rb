@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/../../../../config/environment'
 require 'test/unit'
+require 'mocha'
 
 $asset_packages_yml = YAML.load_file("#{RAILS_ROOT}/vendor/plugins/asset_packager/test/asset_packages.yml")
 $asset_base_path = "#{RAILS_ROOT}/vendor/plugins/asset_packager/test/assets"
@@ -8,6 +9,7 @@ class AssetPackagerTest < Test::Unit::TestCase
   include Synthesis
   
   def setup
+    Synthesis::AssetPackage.any_instance.stubs(:log)
     Synthesis::AssetPackage.build_all
   end
   
@@ -76,5 +78,15 @@ class AssetPackagerTest < Test::Unit::TestCase
     assert package_names[2].match(/\Asecondary_\d+\z/)
     assert_equal package_names[3], "noexist2"
   end
+  
+  def test_should_return_merge_environments_when_set
+    Synthesis::AssetPackage.merge_environments = ["staging", "production"]
+    assert_equal ["staging", "production"], Synthesis::AssetPackage.merge_environments
+  end
+
+  def test_should_only_return_production_merge_environment_when_not_set
+    assert_equal ["production"], Synthesis::AssetPackage.merge_environments
+  end
+
   
 end

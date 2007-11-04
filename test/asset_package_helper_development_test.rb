@@ -4,6 +4,7 @@ ENV['RAILS_ENV'] = "development"
 require File.dirname(__FILE__) + '/../../../../config/environment'
 require 'test/unit'
 require 'rubygems'
+require 'mocha'
 
 require 'action_controller/test_process'
 
@@ -20,6 +21,8 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
   include Synthesis::AssetPackageHelper
 
   def setup
+    Synthesis::AssetPackage.any_instance.stubs(:log)
+
     @controller = Class.new do
       attr_reader :request
       def initialize
