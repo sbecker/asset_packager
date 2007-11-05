@@ -1,6 +1,5 @@
 module Synthesis
   class AssetPackage
-    cattr_writer :merge_environments
 
     # class variables
     @@asset_packages_yml = $asset_packages_yml || 
@@ -8,6 +7,10 @@ module Synthesis
   
     # singleton methods
     class << self
+      
+      def merge_environments=(environments)
+        @@merge_environments = environments
+      end
       
       def merge_environments
         @@merge_environments || ["production"]
