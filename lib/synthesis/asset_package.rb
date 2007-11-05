@@ -13,7 +13,7 @@ module Synthesis
       end
       
       def merge_environments
-        @@merge_environments || ["production"]
+        @@merge_environments ||= ["production"]
       end
       
       def parse_path(path)
