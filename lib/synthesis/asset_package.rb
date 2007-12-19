@@ -216,6 +216,10 @@ module Synthesis
       end
       
       def log(message)
+        self.class.log(message)
+      end
+      
+      def self.log(message)
         puts message
       end
 
