@@ -13,9 +13,9 @@ speed and saving bandwidth.
 When in development, it allows you to use your original versions 
 and retain formatting and comments for readability and debugging.
 
-This code is released under the MIT license (like Ruby). You’re free 
+This code is released under the MIT license (like Ruby). You're free 
 to rip it up, enhance it, etc. And if you make any enhancements, 
-I’d like to know so I can add them back in. Thanks!
+I'd like to know so I can add them back in. Thanks!
 
 * Formerly known as MergeJS.
 
@@ -66,6 +66,8 @@ IMPORTANT: JavaScript files can break once compressed if each statement doesn't 
 The minifier puts multiple statements on one line, so if the semi-colon is missing, the statement may no 
 longer makes sense and cause a syntax error.
 
+== Examples of config/asset_packages.yml
+
 Example from a fresh rails app after running the rake task. (Stylesheets is blank because a 
 default rails app has no stylesheets yet.):
 
@@ -80,7 +82,7 @@ javascripts:
 stylesheets: 
 - base: []
 
-Example with multiple merged files:
+Multiple packages:
 
 ---
 javascripts:
