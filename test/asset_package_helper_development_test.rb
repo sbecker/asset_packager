@@ -9,7 +9,6 @@ require 'mocha'
 require 'action_controller/test_process'
 
 ActionController::Base.logger = nil
-ActionController::Base.ignore_missing_templates = false
 ActionController::Routing::Routes.reload rescue nil
 
 $asset_packages_yml = YAML.load_file("#{RAILS_ROOT}/vendor/plugins/asset_packager/test/asset_packages.yml")
@@ -24,15 +23,9 @@ class AssetPackageHelperProductionTest < Test::Unit::TestCase
     Synthesis::AssetPackage.any_instance.stubs(:log)
 
     @controller = Class.new do
-      attr_reader :request
-      def initialize
-        @request = Class.new do
-          def relative_url_root
-            ""
-          end
-        end.new
+      def request
+        @request ||= ActionController::TestRequest.new
       end
-
     end.new
   end
   
