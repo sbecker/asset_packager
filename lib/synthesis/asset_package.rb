@@ -102,12 +102,19 @@ module Synthesis
       @asset_path = ($asset_base_path ? "#{$asset_base_path}/" : "#{RAILS_ROOT}/public/") +
           "#{@asset_type}#{@target_dir.gsub(/^(.+)$/, '/\1')}"
       @extension = get_extension
-      @match_regex = Regexp.new("\\A#{@target}_packaged.#{@extension}\\z")
+      @file_name = "#{@target}_packaged.#{@extension}"
+      @full_path = File.join(@asset_path, @file_name)
     end
   
+    def package_exists?
+      File.exists?(@full_path)
+    end
+
     def current_file
-      @target_dir.gsub(/^(.+)$/, '\1/') +
-          Dir.new(@asset_path).entries.delete_if { |x| ! (x =~ @match_regex) }.sort.reverse[0].chomp(".#{@extension}")
+      build unless package_exists?
+
+      path = @target_dir.gsub(/^(.+)$/, '\1/')
+      "#{path}#{@target}_packaged"
     end
 
     def build
@@ -116,9 +123,7 @@ module Synthesis
     end
 
     def delete_previous_build
-      Dir.new(@asset_path).entries.delete_if { |x| ! (x =~ @match_regex) }.each do |x|
-        File.delete("#{@asset_path}/#{x}")
-      end
+      File.delete(@full_path) if File.exists?(@full_path)
     end
 
     private
