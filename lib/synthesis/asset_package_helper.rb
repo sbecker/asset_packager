@@ -32,10 +32,7 @@ module Synthesis
         AssetPackage.targets_from_sources("stylesheets", sources) : 
         AssetPackage.sources_from_targets("stylesheets", sources))
 
-      sources.collect { |source|
-        source = stylesheet_path(source)
-        tag("link", { "rel" => "Stylesheet", "type" => "text/css", "media" => "screen", "href" => source }.merge(options))
-      }.join("\n")    
+      sources.collect { |source| stylesheet_link_tag(source, options) }.join("\n")    
     end
 
   end
