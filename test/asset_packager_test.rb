@@ -2,13 +2,13 @@ require File.dirname(__FILE__) + '/../../../../config/environment'
 require 'test/unit'
 require 'mocha'
 
-$asset_packages_yml = YAML.load_file("#{RAILS_ROOT}/vendor/plugins/asset_packager/test/asset_packages.yml")
-$asset_base_path = "#{RAILS_ROOT}/vendor/plugins/asset_packager/test/assets"
-
 class AssetPackagerTest < Test::Unit::TestCase
   include Synthesis
   
   def setup
+    Synthesis::AssetPackage.asset_base_path    = "#{RAILS_ROOT}/vendor/plugins/asset_packager/test/assets"
+    Synthesis::AssetPackage.asset_packages_yml = YAML.load_file("#{RAILS_ROOT}/vendor/plugins/asset_packager/test/asset_packages.yml")
+
     Synthesis::AssetPackage.any_instance.stubs(:log)
     Synthesis::AssetPackage.build_all
   end
@@ -38,18 +38,18 @@ class AssetPackagerTest < Test::Unit::TestCase
   
   def test_delete_and_build
     Synthesis::AssetPackage.delete_all
-    js_package_names = Dir.new("#{$asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.js/) }
-    css_package_names = Dir.new("#{$asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }
-    css_subdir_package_names = Dir.new("#{$asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }
+    js_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.js/) }
+    css_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }
+    css_subdir_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }
     
     assert_equal 0, js_package_names.length
     assert_equal 0, css_package_names.length
     assert_equal 0, css_subdir_package_names.length
 
     Synthesis::AssetPackage.build_all
-    js_package_names = Dir.new("#{$asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.js/) }.sort
-    css_package_names = Dir.new("#{$asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }.sort
-    css_subdir_package_names = Dir.new("#{$asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }.sort
+    js_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.js/) }.sort
+    css_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }.sort
+    css_subdir_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }.sort
     
     assert_equal 2, js_package_names.length
     assert_equal 2, css_package_names.length
@@ -87,6 +87,5 @@ class AssetPackagerTest < Test::Unit::TestCase
   def test_should_only_return_production_merge_environment_when_not_set
     assert_equal ["production"], Synthesis::AssetPackage.merge_environments
   end
-
   
 end

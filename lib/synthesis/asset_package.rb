@@ -1,19 +1,18 @@
 module Synthesis
   class AssetPackage
 
-    # class variables
-    @@asset_packages_yml = $asset_packages_yml || 
-      (File.exists?("#{RAILS_ROOT}/config/asset_packages.yml") ? YAML.load_file("#{RAILS_ROOT}/config/asset_packages.yml") : nil)
+    @asset_base_path    = "#{RAILS_ROOT}/public"
+    @asset_packages_yml = File.exists?("#{RAILS_ROOT}/config/asset_packages.yml") ? YAML.load_file("#{RAILS_ROOT}/config/asset_packages.yml") : nil
   
     # singleton methods
     class << self
-      
-      def merge_environments=(environments)
-        @@merge_environments = environments
-      end
+      attr_accessor :asset_base_path,
+                    :asset_packages_yml
+
+      attr_writer   :merge_environments
       
       def merge_environments
-        @@merge_environments ||= ["production"]
+        @merge_environments ||= ["production"]
       end
       
       def parse_path(path)
@@ -21,17 +20,17 @@ module Synthesis
       end
 
       def find_by_type(asset_type)
-        @@asset_packages_yml[asset_type].map { |p| self.new(asset_type, p) }
+        asset_packages_yml[asset_type].map { |p| self.new(asset_type, p) }
       end
 
       def find_by_target(asset_type, target)
-        package_hash = @@asset_packages_yml[asset_type].find {|p| p.keys.first == target }
+        package_hash = asset_packages_yml[asset_type].find {|p| p.keys.first == target }
         package_hash ? self.new(asset_type, package_hash) : nil
       end
 
       def find_by_source(asset_type, source)
         path_parts = parse_path(source)
-        package_hash = @@asset_packages_yml[asset_type].find do |p|
+        package_hash = asset_packages_yml[asset_type].find do |p|
           key = p.keys.first
           p[key].include?(path_parts[2]) && (parse_path(key)[1] == path_parts[1])
         end
@@ -59,14 +58,14 @@ module Synthesis
       end
 
       def build_all
-        @@asset_packages_yml.keys.each do |asset_type|
-          @@asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).build }
+        asset_packages_yml.keys.each do |asset_type|
+          asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).build }
         end
       end
 
       def delete_all
-        @@asset_packages_yml.keys.each do |asset_type|
-          @@asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).delete_previous_build }
+        asset_packages_yml.keys.each do |asset_type|
+          asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).delete_previous_build }
         end
       end
 
@@ -99,8 +98,7 @@ module Synthesis
       @target = target_parts[2].to_s
       @sources = package_hash[package_hash.keys.first]
       @asset_type = asset_type
-      @asset_path = ($asset_base_path ? "#{$asset_base_path}/" : "#{RAILS_ROOT}/public/") +
-          "#{@asset_type}#{@target_dir.gsub(/^(.+)$/, '/\1')}"
+      @asset_path = "#{self.class.asset_base_path}/#{@asset_type}#{@target_dir.gsub(/^(.+)$/, '/\1')}"
       @extension = get_extension
       @file_name = "#{@target}_packaged.#{@extension}"
       @full_path = File.join(@asset_path, @file_name)
