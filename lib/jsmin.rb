@@ -31,6 +31,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Ruby 1.9 Compatibility Fix - the below isAlphanum uses Fixnum#ord to be compatible with Ruby 1.9 and 1.8.7
+# Fixnum#ord is not found by default in 1.8.6, so monkey patch it in:
+if RUBY_VERSION == '1.8.6'
+  class Fixnum; def ord; return self; end; end
+end
+
 EOF = -1
 $theA = ""
 $theB = ""
