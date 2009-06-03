@@ -12,6 +12,8 @@ ActionController::Base.logger = nil
 ActionController::Routing::Routes.reload rescue nil
 
 class AssetPackageHelperDevelopmentTest < Test::Unit::TestCase
+  include ActionController::Assertions::DomAssertions
+  include ActionController::TestCase::Assertions
   include ActionView::Helpers::TagHelper
   include ActionView::Helpers::AssetTagHelper
   include Synthesis::AssetPackageHelper
