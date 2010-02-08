@@ -154,7 +154,15 @@ module Synthesis
         end
       end
 
-      def compress_js(source)
+      def compress_js(source, minifier = 'jsmin')
+        case minifier
+          when 'google_closure' then result = compress_google_closure(source)
+        else result = compress_js_min(source)
+        end
+        result
+      end
+      
+      def compress_js_min(source)
         jsmin_path = "#{RAILS_ROOT}/vendor/plugins/asset_packager/lib"
         tmp_path = "#{RAILS_ROOT}/tmp/#{@target}_packaged"
       
@@ -173,6 +181,29 @@ module Synthesis
         File.delete("#{tmp_path}_compressed.js") if File.exists?("#{tmp_path}_compressed.js")
 
         result
+      end
+      
+      def compress_google_closure(source)
+        closure_compiler_path = "#{RAILS_ROOT}/vendor/plugins/asset_packager/lib"
+        tmp_path = "#{RAILS_ROOT}/tmp/#{@target}_packaged"
+        
+        # write out to a temp file
+        File.open("#{tmp_path}_uncompressed.js", "w") {|f| f.write(source) }
+      
+        # compress file with JSMin library
+        #`ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
+        `java -jar #{closure_compiler_path}/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js #{tmp_path}_uncompressed.js --js_output_file #{tmp_path}_compressed.js \n`
+        
+        # read it back in and trim it
+        result = ""
+        File.open("#{tmp_path}_compressed.js", "r") { |f| result += f.read.strip }
+  
+        # delete temp files if they exist
+        File.delete("#{tmp_path}_uncompressed.js") if File.exists?("#{tmp_path}_uncompressed.js")
+        File.delete("#{tmp_path}_compressed.js") if File.exists?("#{tmp_path}_compressed.js")
+
+        result
+        
       end
   
       def compress_css(source)
