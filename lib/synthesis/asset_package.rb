@@ -184,26 +184,24 @@ module Synthesis
       end
       
       def compress_google_closure(source)
-        closure_compiler_path = "#{RAILS_ROOT}/vendor/plugins/asset_packager/lib"
-        tmp_path = "#{RAILS_ROOT}/tmp/#{@target}_packaged"
+        require 'net/http'
+        require 'uri'
         
-        # write out to a temp file
-        File.open("#{tmp_path}_uncompressed.js", "w") {|f| f.write(source) }
-      
-        # compress file with JSMin library
-        #`ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
-        `java -jar #{closure_compiler_path}/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js #{tmp_path}_uncompressed.js --js_output_file #{tmp_path}_compressed.js \n`
-        
-        # read it back in and trim it
-        result = ""
-        File.open("#{tmp_path}_compressed.js", "r") { |f| result += f.read.strip }
-  
-        # delete temp files if they exist
-        File.delete("#{tmp_path}_uncompressed.js") if File.exists?("#{tmp_path}_uncompressed.js")
-        File.delete("#{tmp_path}_compressed.js") if File.exists?("#{tmp_path}_compressed.js")
-
+        url = URI.parse('http://closure-compiler.appspot.com/compile')
+        req = Net::HTTP::Post.new(url.path)
+        req.set_form_data({'js_code'=> source, 
+          'compilation_level' => 'SIMPLE_OPTIMIZATIONS',
+          'output_format' => 'text',
+          'output_info' => 'compiled_code'})
+        res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
+        case res
+        when Net::HTTPSuccess, Net::HTTPRedirection
+          result = res.body
+        else
+          log("error compiling js with google closure compiler. Falling back on js_min")
+          result = compress_js_jsmin(source)
+        end
         result
-        
       end
   
       def compress_css(source)
