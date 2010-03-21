@@ -1,5 +1,5 @@
 require 'yaml'
-require File.dirname(__FILE__) + '/../lib/synthesis/asset_package'
+require File.dirname(__FILE__) + '/../../lib/synthesis/asset_package'
 
 namespace :asset do
   namespace :packager do
@@ -13,11 +13,11 @@ namespace :asset do
     task :delete_all do
       Synthesis::AssetPackage.delete_all
     end
-    
+
     desc "Generate asset_packages.yml from existing assets"
     task :create_yml do
       Synthesis::AssetPackage.create_yml
     end
-    
+
   end
 end
