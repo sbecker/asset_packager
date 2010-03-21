@@ -2,7 +2,7 @@ module Synthesis
   module AssetPackageHelper
     
     def should_merge?
-      AssetPackage.merge_environments.include?(RAILS_ENV)
+      AssetPackage.merge_environments.include?(Rails.env)
     end
 
     def javascript_include_merged(*sources)
@@ -11,7 +11,7 @@ module Synthesis
       if sources.include?(:defaults) 
         sources = sources[0..(sources.index(:defaults))] + 
           ['prototype', 'effects', 'dragdrop', 'controls'] + 
-          (File.exists?("#{RAILS_ROOT}/public/javascripts/application.js") ? ['application'] : []) + 
+          (File.exists?("#{Rails.root}/public/javascripts/application.js") ? ['application'] : []) + 
           sources[(sources.index(:defaults) + 1)..sources.length]
         sources.delete(:defaults)
       end
