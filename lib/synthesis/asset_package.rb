@@ -1,3 +1,4 @@
+require File.join(File.dirname(__FILE__), '..', 'jsmin')
 module Synthesis
   class AssetPackage
 
