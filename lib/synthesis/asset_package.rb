@@ -4,18 +4,18 @@ module Synthesis
 
     @asset_base_path    = "#{Rails.root}/public"
     @asset_packages_yml = File.exists?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
-  
+
     # singleton methods
     class << self
       attr_accessor :asset_base_path,
                     :asset_packages_yml
 
       attr_writer   :merge_environments
-      
+
       def merge_environments
         @merge_environments ||= ["production"]
       end
-      
+
       def parse_path(path)
         /^(?:(.*)\/)?([^\/]+)$/.match(path).to_a
       end
@@ -89,10 +89,10 @@ module Synthesis
       end
 
     end
-    
+
     # instance methods
     attr_accessor :asset_type, :target, :target_dir, :sources
-  
+
     def initialize(asset_type, package_hash)
       target_parts = self.class.parse_path(package_hash.keys.first)
       @target_dir = target_parts[1].to_s
@@ -103,8 +103,9 @@ module Synthesis
       @extension = get_extension
       @file_name = "#{@target}_packaged.#{@extension}"
       @full_path = File.join(@asset_path, @file_name)
+      @latest_mtime = get_latest_mtime
     end
-  
+
     def package_exists?
       File.exists?(@full_path)
     end
@@ -132,20 +133,31 @@ module Synthesis
           log "Latest version already exists: #{new_build_path}"
         else
           File.open(new_build_path, "w") {|f| f.write(compressed_file) }
+          File.utime(0, @latest_mtime, new_build_path)
           log "Created #{new_build_path}"
         end
       end
 
       def merged_file
         merged_file = ""
-        @sources.each {|s| 
-          File.open("#{@asset_path}/#{s}.#{@extension}", "r") { |f| 
-            merged_file += f.read + "\n" 
+        @sources.each {|s|
+          File.open("#{@asset_path}/#{s}.#{@extension}", "r") { |f|
+            merged_file += f.read + "\n"
           }
         }
         merged_file
       end
-    
+
+      # Store the latest mtime so that we can attach it to the merged archive.
+      # This allows the Rails asset IDs to work as intended for caching purposes -
+      # if none of the files in the archive have been modified since the last build,
+      # then the new build (typically done at deploy time) will keep the same mtime
+      # (and Rails asset ID).
+      #
+      def get_latest_mtime
+        return @sources.collect{ |s| File.mtime("#{@asset_path}/#{s}.#{@extension}") }.max
+      end
+
       def compressed_file
         case @asset_type
           when "javascripts" then compress_js(merged_file)
@@ -156,7 +168,7 @@ module Synthesis
       def compress_js(source)
         JSMin.compress(source)
       end
-  
+
       def compress_css(source)
         source.gsub!(/\s+/, " ")           # collapse space
         source.gsub!(/\/\*(.*?)\*\//, "")  # remove comments - caution, might want to remove this if using css hacks
@@ -173,11 +185,11 @@ module Synthesis
           when "stylesheets" then "css"
         end
       end
-      
+
       def log(message)
         self.class.log(message)
       end
-      
+
       def self.log(message)
         puts message
       end
@@ -189,6 +201,6 @@ module Synthesis
         file_list.reverse! if extension == "js"
         file_list
       end
-   
+
   end
 end
