@@ -165,8 +165,40 @@ module Synthesis
         end
       end
 
-      def compress_js(source)
+      def compress_js(source, minifier = 'jsmin')
+        case minifier
+          when 'google_closure' then result = compress_google_closure(source)
+        else result = compress_js_min(source)
+        end
+        result
+      end
+
+      def compress_js_min(source)
         JSMin.compress(source)
+      end
+
+      def compress_google_closure(source)
+        require 'net/http'
+        require 'uri'
+
+        url = URI.parse('http://closure-compiler.appspot.com/compile')
+        req = Net::HTTP::Post.new(url.path)
+        req.set_form_data(
+        {
+          'js_code'=> source,
+          'compilation_level' => 'SIMPLE_OPTIMIZATIONS',
+          'output_format' => 'text',
+          'output_info' => 'compiled_code'
+        })
+        res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
+        case res
+        when Net::HTTPSuccess, Net::HTTPRedirection
+          result = res.body
+        else
+          log("Error compiling js with Google's Closure Compiler. Falling back on js_min...")
+          result = compress_js_jsmin(source)
+        end
+        result
       end
 
       def compress_css(source)
