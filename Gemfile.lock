@@ -27,7 +27,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  actionpack (= 2.3.8)
   mocha
   rack
   rails (= 2.3.8)

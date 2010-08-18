@@ -32,3 +32,6 @@ require 'init'
 require 'test/unit'
 require 'action_controller/test_process'
 require 'mocha'
+
+ActionController::Base.logger = nil
+ActionController::Routing::Routes.reload rescue nil
