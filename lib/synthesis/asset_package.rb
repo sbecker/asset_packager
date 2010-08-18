@@ -153,14 +153,14 @@ module Synthesis
       end
 
       def compress_js(source)
-        jsmin_path = "#{Rails.root}/vendor/plugins/asset_packager/lib"
+        jsmin_path = File.join(File.dirname(__FILE__), '..', 'jsmin.rb')
         tmp_path = "#{Rails.root}/tmp/#{@target}_packaged"
       
         # write out to a temp file
         File.open("#{tmp_path}_uncompressed.js", "w") {|f| f.write(source) }
       
         # compress file with JSMin library
-        `ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
+        `ruby #{jsmin_path} <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
 
         # read it back in and trim it
         result = ""
