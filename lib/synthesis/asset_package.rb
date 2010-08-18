@@ -153,7 +153,7 @@ module Synthesis
       end
 
       def compress_js(source)
-        jsmin_path = File.join(File.dirname(__FILE__), '..', 'jsmin.rb')
+        jsmin_path = File.join(File.dirname(__FILE__), 'jsmin.rb')
         tmp_path = "#{Rails.root}/tmp/#{@target}_packaged"
       
         # write out to a temp file
