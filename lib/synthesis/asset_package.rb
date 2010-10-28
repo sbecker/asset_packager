@@ -180,6 +180,23 @@ module Synthesis
         source.gsub!(/\n$/, "")            # remove last break
         source.gsub!(/ \{ /, " {")         # trim inside brackets
         source.gsub!(/; \}/, "}")          # trim inside brackets
+        
+        # add timestamps to images in css
+        source.gsub!(/url\(['"]?([^'"\)]+?(?:gif|png|jpe?g))['"]?\)/i) do |match|
+        
+          file = $1
+          path = File.join(Rails.root, 'public')
+          
+          if file.starts_with?('/')
+            path = File.join(path, file) 
+          else
+            path = File.join(path, 'stylesheets', file)
+          end
+          
+          
+          match.gsub(file, "#{file}?#{File.new(path).mtime.to_i}")
+        end
+        
         source
       end
 
