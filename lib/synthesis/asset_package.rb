@@ -160,7 +160,7 @@ module Synthesis
         File.open("#{tmp_path}_uncompressed.js", "w") {|f| f.write(source) }
       
         # compress file with JSMin library
-        `ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
+        `ruby "#{jsmin_path}/jsmin.rb" <"#{tmp_path}_uncompressed.js" >"#{tmp_path}_compressed.js" \n`
 
         # read it back in and trim it
         result = ""
