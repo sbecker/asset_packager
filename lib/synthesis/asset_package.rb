@@ -1,6 +1,7 @@
+require 'yaml'
+
 module Synthesis
   class AssetPackage
-
     @asset_base_path    = "#{Rails.root}/public"
     @asset_packages_yml = File.exists?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
 
@@ -173,8 +174,7 @@ module Synthesis
       end
 
       def compress_js_min(source)
-        require 'jsmin'
-        JSMin.compress(source)
+        Synthesis::JSMin.compress(source)
       end
 
       def compress_google_closure(source)
