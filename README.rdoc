@@ -44,6 +44,8 @@ http://www.crockford.com/javascript/jsmin.html
 
 == Updates
 
+December '07:
+* Rails 3.0.3 full support.
 June '10:
 * Works fine with Rails 3 beta 3.
 ** Sets the built packages' modification times to the latest mtime of the source files, or order to be more compatible with Rails asset ID caching.
@@ -59,11 +61,18 @@ November '08:
 == How to Use:
 
 1. Download and install the plugin:
-   ./script/plugin install git://github.com/sbecker/asset_packager.git
+
+  rails plugin install git://github.com/sbecker/asset_packager.git
+   
+or
+
+  gem 'asset_packager', '0.3.0'
 
 2. Run the rake task "asset:packager:create_yml" to generate the /config/asset_packages.yml
 file the first time. You will need to reorder files under 'base' so dependencies are loaded
 in correct order. Feel free to rename or create new file packages.
+
+  rake asset:packager:create_yml
 
 IMPORTANT: JavaScript files can break once compressed if each statement doesn't end with a semi-colon.
 The minifier puts multiple statements on one line, so if the semi-colon is missing, the statement may no
@@ -108,6 +117,8 @@ stylesheets:
 
 3. Run the rake task "asset:packager:build_all" to generate the compressed, merged versions
 for each package. Whenever you rearrange the yaml file, you'll need to run this task again.
+
+  rake asset:packager:build_all
 
 Merging and compressing is expensive, so this is something we want to do once, not every time
 your app starts. Thats why its a rake task. You can run this task via Capistrano when deploying
