@@ -13,7 +13,7 @@ module Synthesis
       attr_writer   :merge_environments
 
       def merge_environments
-        @merge_environments ||= ["production"]
+        @merge_environments ||= ['production']
       end
 
       def parse_path(path)
@@ -160,12 +160,12 @@ module Synthesis
 
       def compressed_file
         case @asset_type
-          when "javascripts" then compress_js(merged_file)
-          when "stylesheets" then compress_css(merged_file)
+          when 'javascripts' then compress_js(merged_file)
+          when 'stylesheets' then compress_css(merged_file)
         end
       end
 
-      def compress_js(source, minifier = 'jsmin')
+      def compress_js(source, minifier = 'google_closure')
         case minifier
           when 'google_closure' then result = compress_google_closure(source)
         else result = compress_js_min(source)
@@ -230,8 +230,8 @@ module Synthesis
 
       def get_extension
         case @asset_type
-          when "javascripts" then "js"
-          when "stylesheets" then "css"
+          when 'javascripts' then 'js'
+          when 'stylesheets' then 'css'
         end
       end
 

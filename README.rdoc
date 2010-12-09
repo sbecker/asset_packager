@@ -31,7 +31,7 @@ http://www.crockford.com/javascript/jsmin.html
 
 == Key Features
 
-* Merges and compresses JavaScript and CSS when running in production.
+* Merges and compresses JavaScript and CSS when running in production, using Google's Closure Compiler by default and falling back to Crockford's JS Minifier on failure.
 * Uses uncompressed originals when running in development.
 * Generates packages on demand in production.
 
@@ -44,12 +44,12 @@ http://www.crockford.com/javascript/jsmin.html
 
 == Updates
 
-December '07:
-* Rails 3.0.3 full support.
-June '10:
+December 2010:
+* Rails 3.0.3 support.
+June 2010:
 * Works fine with Rails 3 beta 3.
 ** Sets the built packages' modification times to the latest mtime of the source files, or order to be more compatible with Rails asset ID caching.
-November '08:
+November 2008:
 * Rails 2.2 compatibility fixes
 * No more mucking with internal Rails functions, which means:
   * Return to use of query-string timestamps. Greatly simplifies things.
@@ -62,7 +62,7 @@ November '08:
 
 1. Download and install the plugin:
 
-  rails plugin install git://github.com/sbecker/asset_packager.git
+  rails plugin install git://github.com/brady8/asset_packager.git
    
 or
 
@@ -130,7 +130,7 @@ to run the rake task when deploying, its just recommended for speeding up initia
 4. Use the helper functions whenever including these files in your application. See below for examples.
 
 5. Potential warning: css compressor function currently removes CSS comments. This might blow
-away some CSS hackery. To disable comment removal, comment out /lib/synthesis/asset_package.rb line 176.
+away some CSS hackery. To disable comment removal, comment out /lib/synthesis/asset_package.rb line 164.
 
 == JavaScript Examples
 
