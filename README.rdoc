@@ -29,9 +29,12 @@ It also uses the Ruby JavaScript Minifier created by
 Douglas Crockford.
 http://www.crockford.com/javascript/jsmin.html
 
+...and Google's Closure Compiler, which is now the default as it often leads to better compression than Crockford's JS Minifier.
+http://closure-compiler.appspot.com/
+
 == Key Features
 
-* Merges and compresses JavaScript and CSS when running in production, using Google's Closure Compiler by default and falling back to Crockford's JS Minifier on failure.
+* Merges and compresses JavaScript and CSS when running in production, using Google's Closure Compiler by default and falling back to Crockford's JS Minifier on failure (the Closure Compiler runs remotely on Google's servers).
 * Uses uncompressed originals when running in development.
 * Generates packages on demand in production.
 
@@ -46,9 +49,11 @@ http://www.crockford.com/javascript/jsmin.html
 
 December 2010:
 * Rails 3.0.3 support.
+
 June 2010:
 * Works fine with Rails 3 beta 3.
-** Sets the built packages' modification times to the latest mtime of the source files, or order to be more compatible with Rails asset ID caching.
+* Sets the built packages' modification times to the latest mtime of the source files, or order to be more compatible with Rails asset ID caching.
+
 November 2008:
 * Rails 2.2 compatibility fixes
 * No more mucking with internal Rails functions, which means:
@@ -64,10 +69,6 @@ November 2008:
 
   rails plugin install git://github.com/brady8/asset_packager.git
    
-or
-
-  gem 'asset_packager', '0.3.0'
-
 2. Run the rake task "asset:packager:create_yml" to generate the /config/asset_packages.yml
 file the first time. You will need to reorder files under 'base' so dependencies are loaded
 in correct order. Feel free to rename or create new file packages.
@@ -80,7 +81,7 @@ longer makes sense and cause a syntax error.
 
 == Examples of config/asset_packages.yml
 
-Example from a fresh rails app after running the rake task. (Stylesheets is blank because a
+Example from a fresh rails app after running the rake task. (The 'stylesheets' listing is blank because a
 default rails app has no stylesheets yet.):
 
 ---
@@ -130,7 +131,7 @@ to run the rake task when deploying, its just recommended for speeding up initia
 4. Use the helper functions whenever including these files in your application. See below for examples.
 
 5. Potential warning: css compressor function currently removes CSS comments. This might blow
-away some CSS hackery. To disable comment removal, comment out /lib/synthesis/asset_package.rb line 164.
+away some CSS hackery. To disable comment removal, comment out /lib/synthesis/asset_package.rb line 206.
 
 == JavaScript Examples
 
