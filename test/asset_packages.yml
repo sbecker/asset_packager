@@ -1,9 +1,6 @@
 javascripts:
-- base:
-  - prototype
-  - effects
-  - controls
-  - dragdrop
+- global: &global [prototype]
+- base: [*global, effects, controls, dragdrop]
 - secondary:
   - foo
   - bar

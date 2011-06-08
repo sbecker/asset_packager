@@ -96,7 +96,7 @@ module Synthesis
       target_parts = self.class.parse_path(package_hash.keys.first)
       @target_dir = target_parts[1].to_s
       @target = target_parts[2].to_s
-      @sources = package_hash[package_hash.keys.first]
+      @sources = package_hash[package_hash.keys.first].flatten.uniq
       @asset_type = asset_type
       @asset_path = "#{self.class.asset_base_path}/#{@asset_type}#{@target_dir.gsub(/^(.+)$/, '/\1')}"
       @extension = get_extension
