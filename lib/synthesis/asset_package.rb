@@ -153,14 +153,14 @@ module Synthesis
       end
 
       def compress_js(source)
-        jsmin_path = "#{Rails.root}/vendor/plugins/asset_packager/lib"
+        jsmin_path = File.join(File.dirname(__FILE__), 'jsmin.rb')
         tmp_path = "#{Rails.root}/tmp/#{@target}_packaged"
       
         # write out to a temp file
         File.open("#{tmp_path}_uncompressed.js", "w") {|f| f.write(source) }
       
         # compress file with JSMin library
-        `ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
+        `ruby #{jsmin_path} <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
 
         # read it back in and trim it
         result = ""
@@ -180,6 +180,23 @@ module Synthesis
         source.gsub!(/\n$/, "")            # remove last break
         source.gsub!(/ \{ /, " {")         # trim inside brackets
         source.gsub!(/; \}/, "}")          # trim inside brackets
+        
+        # add timestamps to images in css
+        source.gsub!(/url\(['"]?([^'"\)]+?(?:gif|png|jpe?g))['"]?\)/i) do |match|
+        
+          file = $1
+          path = File.join(Rails.root, 'public')
+          
+          if file.starts_with?('/')
+            path = File.join(path, file) 
+          else
+            path = File.join(path, 'stylesheets', file)
+          end
+          
+          
+          match.gsub(file, "#{file}?#{File.new(path).mtime.to_i}")
+        end
+        
         source
       end
 
