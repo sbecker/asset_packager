@@ -44,6 +44,12 @@ http://www.crockford.com/javascript/jsmin.html
 
 == Updates
 
+March '10
+* Fix thread safety issue.
+* JSMin compatibility fix for Ruby 1.9.1 – Fixnum#ord
+* Rails >= 2.3 test compatibility
+* Rails 3 deprecations – change RAILS_ROOT to Rails.root, change RAILS_ENV to Rails.env, move tasks to lib dir
+
 November '08:
 * Rails 2.2 compatibility fixes
 * No more mucking with internal Rails functions, which means:
