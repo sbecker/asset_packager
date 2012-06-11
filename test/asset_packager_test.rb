@@ -19,9 +19,9 @@ class AssetPackagerTest < Test::Unit::TestCase
   
   def test_find_by_type
     js_asset_packages = Synthesis::AssetPackage.find_by_type("javascripts")
-    assert_equal 2, js_asset_packages.length
-    assert_equal "base", js_asset_packages[0].target
-    assert_equal ["prototype", "effects", "controls", "dragdrop"], js_asset_packages[0].sources
+    assert_equal 3, js_asset_packages.length
+    assert_equal "base", js_asset_packages[1].target
+    assert_equal ["prototype", "effects", "controls", "dragdrop"], js_asset_packages[1].sources
   end
   
   def test_find_by_target
@@ -50,12 +50,12 @@ class AssetPackagerTest < Test::Unit::TestCase
     js_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/javascripts").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.js/) }.sort
     css_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/stylesheets").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }.sort
     css_subdir_package_names = Dir.new("#{Synthesis::AssetPackage.asset_base_path}/stylesheets/subdir").entries.delete_if { |x| ! (x =~ /\A\w+_packaged.css/) }.sort
-    
-    assert_equal 2, js_package_names.length
+
+    assert_equal 3, js_package_names.length
     assert_equal 2, css_package_names.length
     assert_equal 1, css_subdir_package_names.length
     assert js_package_names[0].match(/\Abase_packaged.js\z/)
-    assert js_package_names[1].match(/\Asecondary_packaged.js\z/)
+    assert js_package_names[2].match(/\Asecondary_packaged.js\z/)
     assert css_package_names[0].match(/\Abase_packaged.css\z/)
     assert css_package_names[1].match(/\Asecondary_packaged.css\z/)
     assert css_subdir_package_names[0].match(/\Astyles_packaged.css\z/)
@@ -63,11 +63,11 @@ class AssetPackagerTest < Test::Unit::TestCase
   
   def test_js_names_from_sources
     package_names = Synthesis::AssetPackage.targets_from_sources("javascripts", ["prototype", "effects", "noexist1", "controls", "foo", "noexist2"])
-    assert_equal 4, package_names.length
-    assert package_names[0].match(/\Abase_packaged\z/)
-    assert_equal package_names[1], "noexist1"
-    assert package_names[2].match(/\Asecondary_packaged\z/)
-    assert_equal package_names[3], "noexist2"
+    assert_equal 5, package_names.length
+    assert package_names[1].match(/\Abase_packaged\z/)
+    assert_equal package_names[2], "noexist1"
+    assert package_names[3].match(/\Asecondary_packaged\z/)
+    assert_equal package_names[4], "noexist2"
   end
   
   def test_css_names_from_sources
