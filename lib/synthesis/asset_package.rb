@@ -153,7 +153,7 @@ module Synthesis
       end
 
       def compress_js(source)
-        jsmin_path = "#{Rails.root}/vendor/plugins/asset_packager/lib"
+        jsmin_path = "#{File.dirname(__FILE__)}/.."
         tmp_path = "#{Rails.root}/tmp/#{@target}_packaged"
 
         # write out to a temp file
