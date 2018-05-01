@@ -1,15 +1,18 @@
 module Synthesis
   class AssetPackage
 
-    @asset_base_path    = "#{Rails.root}/public"
-    @asset_packages_yml = File.exists?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
-
     # singleton methods
     class << self
-      attr_accessor :asset_base_path,
-                    :asset_packages_yml
-
       attr_writer   :merge_environments
+
+      def asset_base_path
+        "#{Rails.root}/public"
+      end
+
+      def asset_packages_yml
+        return @asset_packages_yml if defined?(@asset_packages_yml)
+        @asset_packages_yml = File.exists?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
+      end
 
       def merge_environments
         @merge_environments ||= ["production"]
