@@ -54,10 +54,20 @@ module Synthesis
         targets.each do |target|
           package = find_by_target(asset_type, target)
           source_names += (package ? package.sources.collect do |src|
-            package.target_dir.gsub(/^(.+)$/, '\1/') + src
+            filename, _ = get_filename_and_copyright_from_spec(src)
+            package.target_dir.gsub(/^(.+)$/, '\1/') + filename
           end : Array(target))
         end
         source_names.uniq
+      end
+
+      def get_filename_and_copyright_from_spec(spec)
+        case spec
+        when String
+          [spec, nil]
+        when Hash
+          [spec["file"], spec["copyright"].strip]
+        end
       end
 
       def build_all
@@ -133,26 +143,30 @@ module Synthesis
         if File.exists?(new_build_path)
           log "Latest version already exists: #{new_build_path}"
         else
-          File.open(new_build_path, "w") {|f| f.write(compressed_file) }
+          File.open(new_build_path, "w") {|f| f.write(process_assets(@asset_type.to_sym)) }
           log "Created #{new_build_path}"
         end
       end
 
-      def merged_file
-        merged_file = ""
-        @sources.each {|s|
-          File.open("#{@asset_path}/#{s}.#{@extension}", "r") { |f|
-            merged_file += f.read + "\n"
-          }
-        }
-        merged_file
-      end
+      def process_assets(mode)
+        @sources.map {|spec|
+          filename, copyright = self.class.get_filename_and_copyright_from_spec(spec)
+          source = File.read("#{@asset_path}/#{filename}.#{@extension}")
+          compressed_source = case mode
+                              when :javascripts
+                                compress_js(source)
+                              when :stylesheets
+                                compress_css(source)
+                              end
+          <<~EOS
+          /* ---------- Start: #{filename} ---------- */
 
-      def compressed_file
-        case @asset_type
-          when "javascripts" then compress_js(merged_file)
-          when "stylesheets" then compress_css(merged_file)
-        end
+          #{copyright}
+
+          #{compressed_source}
+          /* ---------- End: #{filename} ---------- */
+          EOS
+        }.join("\n\n\n")
       end
 
       def compress_js(source)
