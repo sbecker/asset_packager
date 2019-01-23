@@ -64,9 +64,9 @@ module Synthesis
       def get_filename_and_copyright_from_spec(spec)
         case spec
         when String
-          [spec, nil]
+          [spec, nil, nil]
         when Hash
-          [spec["file"], spec["copyright"].strip]
+          [spec["file"], spec["copyright"].strip, (spec["skip_minification"] || false)]
         end
       end
 
@@ -150,20 +150,24 @@ module Synthesis
 
       def process_assets(mode)
         @sources.map {|spec|
-          filename, copyright = self.class.get_filename_and_copyright_from_spec(spec)
+          filename, copyright, skip_minification = self.class.get_filename_and_copyright_from_spec(spec)
           source = File.read("#{@asset_path}/#{filename}.#{@extension}")
-          compressed_source = case mode
-                              when :javascripts
-                                compress_js(source)
-                              when :stylesheets
-                                compress_css(source)
-                              end
+          source_content_for_output = if skip_minification
+                                        source
+                                      else
+                                        case mode
+                                        when :javascripts
+                                          compress_js(source)
+                                        when :stylesheets
+                                          compress_css(source)
+                                        end
+                                      end
           <<~EOS
           /* ---------- Start: #{filename} ---------- */
 
           #{copyright}
 
-          #{compressed_source}
+          #{source_content_for_output}
           /* ---------- End: #{filename} ---------- */
           EOS
         }.join("\n\n\n")
