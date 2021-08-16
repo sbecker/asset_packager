@@ -1,0 +1,27 @@
+os: linux
+dist: xenial # Ubuntu 16.04.5 LTS
+language: ruby
+
+git:
+  depth: 1
+
+env:
+  global:
+    - BUNDLE_WITHOUT=production
+    - BUNDLE_JOBS=3
+    - BUNDLE_RETRY=3
+
+jobs:
+  fast_finish: true
+  include:
+    -
+      name: "Rails 4.2 / Ruby 2.7"
+      rvm: 2.7.4
+      gemfile: gemfiles/Gemfile.4.2-2.7.4
+
+install:
+  - bundle config set --local deployment 'true'
+  - bundler install
+
+script:
+  - bundle exec rake

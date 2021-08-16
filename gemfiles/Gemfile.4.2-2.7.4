@@ -1,0 +1,16 @@
+source 'https://rubygems.org'
+
+# Runtime dependencies
+gem 'rails', '~> 4.2'
+gem 'bigdecimal', '= 1.3.5'
+
+# Development dependencies
+group :development, :test do
+  gem "rake", '= 10.4.2'
+  gem 'bundler', '= 1.17.2'
+  gem 'test-unit', '= 3.0.9'
+  gem 'mocha', '= 1.1.0'
+end
+
+# Gem under test
+# gem 'asset_packager', :path => '../'
