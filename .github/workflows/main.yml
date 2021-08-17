@@ -5,12 +5,16 @@ on: [ push ]
 jobs:
   ci:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         include:
+          -
+            name: "Default"
+            ruby: 2.7.4
+            gemfile: Gemfile
           -
             ruby: 2.7.4
             gemfile: gemfiles/Gemfile.4.2-2.7.4
@@ -23,7 +27,6 @@ jobs:
       BUNDLE_WITHOUT: production
       BUNDLE_JOBS: 3
       BUNDLE_RETRY: 3
-      CI: true
 
     steps:
       -
@@ -37,9 +40,19 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
       -
-        name: Set Env
+        name: Set Env 1.17.3 (Default)
+        if: ${{ matrix.gemfile == 'Gemfile' }}
+        run: gem install bundler:1.17.3
+      -
+        name: Set Env 1.17.3
         if: ${{ matrix.gemfile == 'gemfiles/Gemfile.4.2-2.7.4' }}
-        run: gem install bundler -v 1.17.3
+        run: gem install bundler:1.17.3
+      -
+        name: Set Env 2.2.25
+        if: ${{ matrix.gemfile != 'gemfiles/Gemfile.4.2-2.7.4' }}
+        run: |
+          gem update --system
+          gem install bundler:2.2.25
       -
         name: Bundle Install ${{ matrix.gemfile }}
         run: |
