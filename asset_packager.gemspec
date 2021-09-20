@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "asset_packager"
-  spec.version       = 0.1
+  spec.version       = 0.1.1
   spec.authors       = ["Scott Becker"]
   spec.email         = ["becker.scott@gmail.com"]
 
