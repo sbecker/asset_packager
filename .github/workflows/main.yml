@@ -23,7 +23,7 @@ jobs:
             gemfile: gemfiles/Gemfile.5.2-2.7.4
           -
             ruby: 2.7.6
-            gemfile: gemfiles/Gemfile.6.1
+            gemfile: gemfiles/Gemfile.6.1.gemfile
 
     env:
       BUNDLE_GEMFILE: "${{ matrix.gemfile }}"
