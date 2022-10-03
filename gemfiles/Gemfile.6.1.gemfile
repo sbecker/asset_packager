@@ -1,0 +1,15 @@
+source 'https://rubygems.org'
+
+# Runtime dependencies
+gem 'rails', '~> 6.1'
+
+# Development dependencies
+group :development, :test do
+  gem "rake"
+  gem 'bundler'
+  gem 'test-unit'
+  gem 'mocha'
+end
+
+# Gem under test
+# gem 'asset_packager', :path => '../'
