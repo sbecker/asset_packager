@@ -1,10 +1,9 @@
-# frozen_string_literal: true
-
 module Synthesis
   class AssetPackage
+
     # singleton methods
     class << self
-      attr_writer :merge_environments
+      attr_writer   :merge_environments
 
       def asset_base_path
         "#{Rails.root}/public"
@@ -12,8 +11,7 @@ module Synthesis
 
       def asset_packages_yml
         return @asset_packages_yml if defined?(@asset_packages_yml)
-
-        @asset_packages_yml = File.exist?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
+        @asset_packages_yml = File.exists?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
       end
 
       def merge_environments
@@ -21,16 +19,16 @@ module Synthesis
       end
 
       def parse_path(path)
-        %r{^(?:(.*)/)?([^/]+)$}.match(path).to_a
+        /^(?:(.*)\/)?([^\/]+)$/.match(path).to_a
       end
 
       def find_by_type(asset_type)
-        asset_packages_yml[asset_type].map { |p| new(asset_type, p) }
+        asset_packages_yml[asset_type].map { |p| self.new(asset_type, p) }
       end
 
       def find_by_target(asset_type, target)
-        package_hash = asset_packages_yml[asset_type].find { |p| p.keys.first == target }
-        package_hash ? new(asset_type, package_hash) : nil
+        package_hash = asset_packages_yml[asset_type].find {|p| p.keys.first == target }
+        package_hash ? self.new(asset_type, package_hash) : nil
       end
 
       def find_by_source(asset_type, source)
@@ -39,11 +37,11 @@ module Synthesis
           key = p.keys.first
           p[key].include?(path_parts[2]) && (parse_path(key)[1] == path_parts[1])
         end
-        package_hash ? new(asset_type, package_hash) : nil
+        package_hash ? self.new(asset_type, package_hash) : nil
       end
 
       def targets_from_sources(asset_type, sources)
-        package_names = []
+        package_names = Array.new
         sources.each do |source|
           package = find_by_target(asset_type, source) || find_by_source(asset_type, source)
           package_names << (package ? package.current_file : source)
@@ -52,17 +50,13 @@ module Synthesis
       end
 
       def sources_from_targets(asset_type, targets)
-        source_names = []
+        source_names = Array.new
         targets.each do |target|
           package = find_by_target(asset_type, target)
-          source_names += (if package
-                             package.sources.collect do |src|
-                               filename, = get_filename_and_copyright_from_spec(src)
-                               package.target_dir.gsub(/^(.+)$/, '\1/') + filename
-                             end
-                           else
-                             Array(target)
-                           end)
+          source_names += (package ? package.sources.collect do |src|
+            filename, _ = get_filename_and_copyright_from_spec(src)
+            package.target_dir.gsub(/^(.+)$/, '\1/') + filename
+          end : Array(target))
         end
         source_names.uniq
       end
@@ -77,25 +71,23 @@ module Synthesis
       end
 
       def build_all
-        asset_packages_yml.each_key do |asset_type|
-          asset_packages_yml[asset_type].each { |p| new(asset_type, p).build }
+        asset_packages_yml.keys.each do |asset_type|
+          asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).build }
         end
       end
 
       def delete_all
-        asset_packages_yml.each_key do |asset_type|
-          asset_packages_yml[asset_type].each { |p| new(asset_type, p).delete_previous_build }
+        asset_packages_yml.keys.each do |asset_type|
+          asset_packages_yml[asset_type].each { |p| self.new(asset_type, p).delete_previous_build }
         end
       end
 
       def create_yml
-        if File.exist?("#{Rails.root}/config/asset_packages.yml")
-          log "config/asset_packages.yml already exists. Aborting task..."
-        else
-          asset_yml = {}
+        unless File.exists?("#{Rails.root}/config/asset_packages.yml")
+          asset_yml = Hash.new
 
-          asset_yml["javascripts"] = [{ "base" => build_file_list("#{Rails.root}/public/javascripts", "js") }]
-          asset_yml["stylesheets"] = [{ "base" => build_file_list("#{Rails.root}/public/stylesheets", "css") }]
+          asset_yml['javascripts'] = [{"base" => build_file_list("#{Rails.root}/public/javascripts", "js")}]
+          asset_yml['stylesheets'] = [{"base" => build_file_list("#{Rails.root}/public/stylesheets", "css")}]
 
           File.open("#{Rails.root}/config/asset_packages.yml", "w") do |out|
             YAML.dump(asset_yml, out)
@@ -103,8 +95,11 @@ module Synthesis
 
           log "config/asset_packages.yml example file created!"
           log "Please reorder files under 'base' so dependencies are loaded in correct order."
+        else
+          log "config/asset_packages.yml already exists. Aborting task..."
         end
       end
+
     end
 
     # instance methods
@@ -123,7 +118,7 @@ module Synthesis
     end
 
     def package_exists?
-      File.exist?(@full_path)
+      File.exists?(@full_path)
     end
 
     def current_file
@@ -139,98 +134,98 @@ module Synthesis
     end
 
     def delete_previous_build
-      FileUtils.rm_f(@full_path)
+      File.delete(@full_path) if File.exists?(@full_path)
     end
 
     private
-
-    def create_new_build
-      new_build_path = "#{@asset_path}/#{@target}_packaged.#{@extension}"
-      if File.exist?(new_build_path)
-        log "Latest version already exists: #{new_build_path}"
-      else
-        File.write(new_build_path, process_assets(@asset_type.to_sym))
-        log "Created #{new_build_path}"
+      def create_new_build
+        new_build_path = "#{@asset_path}/#{@target}_packaged.#{@extension}"
+        if File.exists?(new_build_path)
+          log "Latest version already exists: #{new_build_path}"
+        else
+          File.open(new_build_path, "w") {|f| f.write(process_assets(@asset_type.to_sym)) }
+          log "Created #{new_build_path}"
+        end
       end
-    end
 
-    def process_assets(mode)
-      @sources.map do |spec|
-        filename, copyright, skip_minification = self.class.get_filename_and_copyright_from_spec(spec)
-        source = File.read("#{@asset_path}/#{filename}.#{@extension}")
-        source_content_for_output = if skip_minification
-                                      source
-                                    else
-                                      case mode
-                                      when :javascripts
-                                        compress_js(source)
-                                      when :stylesheets
-                                        compress_css(source)
+      def process_assets(mode)
+        @sources.map {|spec|
+          filename, copyright, skip_minification = self.class.get_filename_and_copyright_from_spec(spec)
+          source = File.read("#{@asset_path}/#{filename}.#{@extension}")
+          source_content_for_output = if skip_minification
+                                        source
+                                      else
+                                        case mode
+                                        when :javascripts
+                                          compress_js(source)
+                                        when :stylesheets
+                                          compress_css(source)
+                                        end
                                       end
-                                    end
-        <<~EOS
+          <<~EOS
           /* ---------- Start: #{filename} ---------- */
 
           #{copyright}
 
           #{source_content_for_output}
           /* ---------- End: #{filename} ---------- */
-        EOS
-      end.join("\n\n\n")
-    end
-
-    def compress_js(source)
-      jsmin_path = "#{File.dirname(__FILE__)}/.."
-      tmp_path = "#{Rails.root}/tmp/#{@target}_packaged"
-
-      # write out to a temp file
-      File.write("#{tmp_path}_uncompressed.js", source)
-
-      # compress file with JSMin library
-      `ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
-
-      # read it back in and trim it
-      result = ""
-      File.open("#{tmp_path}_compressed.js", "r") { |f| result += f.read.strip }
-
-      # delete temp files if they exist
-      FileUtils.rm_f("#{tmp_path}_uncompressed.js")
-      FileUtils.rm_f("#{tmp_path}_compressed.js")
-
-      result
-    end
-
-    def compress_css(source)
-      source.gsub!(/\s+/, " ")           # collapse space
-      source.gsub!(%r{/\*(.*?)\*/}, "")  # remove comments - caution, might want to remove this if using css hacks
-      source.gsub!(/\} /, "}\n")         # add line breaks
-      source.gsub!(/\n$/, "")            # remove last break
-      source.gsub!(/ \{ /, " {")         # trim inside brackets
-      source.gsub!(/; \}/, "}")          # trim inside brackets
-      source
-    end
-
-    def get_extension
-      case @asset_type
-      when "javascripts" then "js"
-      when "stylesheets" then "css"
+          EOS
+        }.join("\n\n\n")
       end
-    end
 
-    def log(message)
-      self.class.log(message)
-    end
+      def compress_js(source)
+        jsmin_path = "#{File.dirname(__FILE__)}/.."
+        tmp_path = "#{Rails.root}/tmp/#{@target}_packaged"
 
-    def self.log(message)
-      Rails.logger.debug message
-    end
+        # write out to a temp file
+        File.open("#{tmp_path}_uncompressed.js", "w") {|f| f.write(source) }
 
-    def self.build_file_list(path, extension)
-      re = Regexp.new(".#{extension}\\z")
-      file_list = Dir.new(path).entries.delete_if { |x| x !~ re }.map { |x| x.chomp(".#{extension}") }
-      # reverse javascript entries so prototype comes first on a base rails app
-      file_list.reverse! if extension == "js"
-      file_list
-    end
+        # compress file with JSMin library
+        `ruby #{jsmin_path}/jsmin.rb <#{tmp_path}_uncompressed.js >#{tmp_path}_compressed.js \n`
+
+        # read it back in and trim it
+        result = ""
+        File.open("#{tmp_path}_compressed.js", "r") { |f| result += f.read.strip }
+
+        # delete temp files if they exist
+        File.delete("#{tmp_path}_uncompressed.js") if File.exists?("#{tmp_path}_uncompressed.js")
+        File.delete("#{tmp_path}_compressed.js") if File.exists?("#{tmp_path}_compressed.js")
+
+        result
+      end
+
+      def compress_css(source)
+        source.gsub!(/\s+/, " ")           # collapse space
+        source.gsub!(/\/\*(.*?)\*\//, "")  # remove comments - caution, might want to remove this if using css hacks
+        source.gsub!(/\} /, "}\n")         # add line breaks
+        source.gsub!(/\n$/, "")            # remove last break
+        source.gsub!(/ \{ /, " {")         # trim inside brackets
+        source.gsub!(/; \}/, "}")          # trim inside brackets
+        source
+      end
+
+      def get_extension
+        case @asset_type
+          when "javascripts" then "js"
+          when "stylesheets" then "css"
+        end
+      end
+
+      def log(message)
+        self.class.log(message)
+      end
+
+      def self.log(message)
+        puts message
+      end
+
+      def self.build_file_list(path, extension)
+        re = Regexp.new(".#{extension}\\z")
+        file_list = Dir.new(path).entries.delete_if { |x| ! (x =~ re) }.map {|x| x.chomp(".#{extension}")}
+        # reverse javascript entries so prototype comes first on a base rails app
+        file_list.reverse! if extension == "js"
+        file_list
+      end
+
   end
 end

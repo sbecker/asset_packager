@@ -1,22 +1,14 @@
-# frozen_string_literal: true
-
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
 # Runtime dependencies
-gem "rails", "~> 6.1"
+gem 'rails', '~> 6.1'
 
 # Development dependencies
 group :development, :test do
-  gem "bundler"
-  gem "mocha"
   gem "rake"
-  gem "rubocop"
-  gem "rubocop-gitlab-security"
-  gem "rubocop-minitest"
-  gem "rubocop-performance"
-  gem "rubocop-rails"
-  gem "rubocop-rake"
-  gem "test-unit"
+  gem 'bundler'
+  gem 'test-unit'
+  gem 'mocha'
 end
 
 # Gem under test

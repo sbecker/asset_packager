@@ -1,19 +1,12 @@
-# frozen_string_literal: true
+require 'rake'
+require 'rake/testtask'
 
-require "bundler/gem_tasks"
+desc 'Default: run unit tests.'
+task :default => :test
 
-require "rake/testtask"
-
+desc 'Test the asset_packager plugin.'
 Rake::TestTask.new(:test) do |t|
-  t.libs << "test"
-  t.libs << "lib"
-  t.test_files = FileList["test/**/test_*.rb"]
+  t.libs << 'lib'
+  t.pattern = 'test/**/*_test.rb'
+  t.verbose = true
 end
-
-require "rubocop/rake_task"
-
-RuboCop::RakeTask.new(:rubocop) do |task|
-  task.options = ["-A"] # auto_correct
-end
-
-task default: %i[test rubocop]
