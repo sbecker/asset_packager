@@ -16,15 +16,24 @@ jobs:
   include:
     -
       name: "Default"
-      rvm: 2.7.4
+      rvm: 2.7.6
       gemfile: Gemfile
     -
-      name: "Rails 4.2 / Ruby 2.7"
-      rvm: 2.7.4
-      gemfile: gemfiles/Gemfile.4.2-2.7.4
+      name: "Rails 5.2 / Ruby 2.7"
+      rvm: 2.7.6
+      gemfile: gemfiles/Gemfile.5.2.gemfile
+    -
+      name: "Rails 6.1 / Ruby 2.7"
+      rvm: 2.7.6
+      gemfile: gemfiles/Gemfile.6.1.gemfile
+    -
+      name: "Rails 6.1 / Ruby 3.0"
+      rvm: 3.0.3
+      gemfile: gemfiles/Gemfile.6.1.gemfile
 
 before_install:
-  - gem install bundler:1.17.3
+  - gem update --system
+  - gem install bundler
 
 install:
   - bundle config set --local deployment 'true'
