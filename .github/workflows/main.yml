@@ -17,9 +17,6 @@ jobs:
             gemfile: Gemfile
           -
             ruby: 2.7.6
-            gemfile: gemfiles/Gemfile.4.2.gemfile
-          -
-            ruby: 2.7.6
             gemfile: gemfiles/Gemfile.5.2.gemfile
           -
             ruby: 2.7.6
@@ -43,16 +40,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
       -
-        name: Set Env 1.17.3 (Default)
-        if: ${{ matrix.gemfile == 'Gemfile' }}
-        run: gem install bundler:1.17.3
-      -
-        name: Set Env 1.17.3
-        if: ${{ matrix.gemfile == 'gemfiles/Gemfile.4.2.gemfile' }}
-        run: gem install bundler:1.17.3
-      -
-        name: Set Env 2.x
-        if: ${{ matrix.gemfile != 'gemfiles/Gemfile.4.2.gemfile' }}
+        name: Set Bundle ${{ matrix.gemfile }}
         run: |
           gem update --system
           gem install bundler
