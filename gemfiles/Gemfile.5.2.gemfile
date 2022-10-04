@@ -1,14 +1,22 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
+
+source "https://rubygems.org"
 
 # Runtime dependencies
-gem 'rails', '~> 5.2'
+gem "rails", "~> 5.2"
 
 # Development dependencies
 group :development, :test do
-  gem "rake", '= 10.4.2'
-  gem 'bundler', '= 2.2.25'
-  gem 'test-unit', '= 3.0.9'
-  gem 'mocha', '= 1.1.0'
+  gem "bundler", "= 2.2.25"
+  gem "mocha", "= 1.1.0"
+  gem "rake", "= 10.4.2"
+  gem "rubocop"
+  gem "rubocop-gitlab-security"
+  gem "rubocop-minitest"
+  gem "rubocop-performance"
+  gem "rubocop-rails"
+  gem "rubocop-rake"
+  gem "test-unit", "= 3.0.9"
 end
 
 # Gem under test
