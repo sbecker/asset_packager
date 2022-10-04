@@ -11,7 +11,7 @@ module Synthesis
 
       def asset_packages_yml
         return @asset_packages_yml if defined?(@asset_packages_yml)
-        @asset_packages_yml = File.exists?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
+        @asset_packages_yml = File.exist?("#{Rails.root}/config/asset_packages.yml") ? YAML.load_file("#{Rails.root}/config/asset_packages.yml") : nil
       end
 
       def merge_environments
@@ -83,7 +83,7 @@ module Synthesis
       end
 
       def create_yml
-        unless File.exists?("#{Rails.root}/config/asset_packages.yml")
+        unless File.exist?("#{Rails.root}/config/asset_packages.yml")
           asset_yml = Hash.new
 
           asset_yml['javascripts'] = [{"base" => build_file_list("#{Rails.root}/public/javascripts", "js")}]
@@ -118,7 +118,7 @@ module Synthesis
     end
 
     def package_exists?
-      File.exists?(@full_path)
+      File.exist?(@full_path)
     end
 
     def current_file
@@ -134,13 +134,13 @@ module Synthesis
     end
 
     def delete_previous_build
-      File.delete(@full_path) if File.exists?(@full_path)
+      File.delete(@full_path) if File.exist?(@full_path)
     end
 
     private
       def create_new_build
         new_build_path = "#{@asset_path}/#{@target}_packaged.#{@extension}"
-        if File.exists?(new_build_path)
+        if File.exist?(new_build_path)
           log "Latest version already exists: #{new_build_path}"
         else
           File.open(new_build_path, "w") {|f| f.write(process_assets(@asset_type.to_sym)) }
@@ -188,8 +188,8 @@ module Synthesis
         File.open("#{tmp_path}_compressed.js", "r") { |f| result += f.read.strip }
 
         # delete temp files if they exist
-        File.delete("#{tmp_path}_uncompressed.js") if File.exists?("#{tmp_path}_uncompressed.js")
-        File.delete("#{tmp_path}_compressed.js") if File.exists?("#{tmp_path}_compressed.js")
+        File.delete("#{tmp_path}_uncompressed.js") if File.exist?("#{tmp_path}_uncompressed.js")
+        File.delete("#{tmp_path}_compressed.js") if File.exist?("#{tmp_path}_compressed.js")
 
         result
       end
