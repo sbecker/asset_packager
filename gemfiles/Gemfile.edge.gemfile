@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Runtime dependencies
-gem 'rails', '~> 5.2'
+gem 'rails', github: "rails/rails", branch: "main"
 
 # Development dependencies
 group :development, :test do
