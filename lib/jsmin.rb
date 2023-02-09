@@ -63,7 +63,7 @@ def get()
         c = $stdin.getc
     end
     return EOF if !c
-    return c if (c >= " " || c == "\n" || c == EOF)
+    return c if (c == EOF || c >= " " || c == "\n")
     return "\n" if (c == "\r")
     return " "
 end
@@ -164,13 +164,13 @@ def action(a)
                             $stdout.write $theA
                             $theA = get
                         elsif ($theA == EOF)
-                            raise "1 Unterminated set in Regular Expression literal."
+                            raise "Unterminated set in Regular Expression literal."
                         end
                     end
                 elsif ($theA == "/")
                     case peek
                     when "/", "*"
-                        raise "2 Unterminated set in Regular Expression literal."
+                        raise "Unterminated set in Regular Expression literal."
                     end
                     break
                 elsif ($theA == "\\")
