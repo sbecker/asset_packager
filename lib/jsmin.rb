@@ -1,13 +1,14 @@
 #!/usr/bin/ruby
 # jsmin.rb 2007-07-20
 # Author: Uladzislau Latynski
+# Updated by Alliantist 2023-02-09
 # This work is a translation from C to Ruby of jsmin.c published by
 # Douglas Crockford.  Permission is hereby granted to use the Ruby
 # version under the same conditions as the jsmin.c on which it is
 # based.
 #
 # /* jsmin.c
-#    2003-04-21
+#    2019-10-30
 #
 # Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
 #
@@ -40,32 +41,37 @@ end
 EOF = -1
 $theA = ""
 $theB = ""
+$lookahead = EOF
+$theX = EOF
+$theY = EOF
 
 # isAlphanum -- return true if the character is a letter, digit, underscore,
 # dollar sign, or non-ASCII character
 def isAlphanum(c)
-   return false if !c || c == EOF
-   return ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
-           (c >= 'A' && c <= 'Z') || c == '_' || c == '$' ||
-           c == '\\' || c[0].ord > 126)
+    return false if !c || c == EOF
+    return ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+            (c >= 'A' && c <= 'Z') || c == '_' || c == '$' ||
+            c == '\\' || c[0].ord > 126)
 end
 
 # get -- return the next character from stdin. Watch out for lookahead. If
 # the character is a control character, translate it to a space or linefeed.
 def get()
-  c = $stdin.getc
-  return EOF if(!c)
-  c = c.chr
-  return c if (c >= " " || c == "\n" || c.unpack("c") == EOF)
-  return "\n" if (c == "\r")
-  return " "
+    c = $lookahead
+    $lookahead = EOF
+    if (c == EOF)
+        c = $stdin.getc
+    end
+    return EOF if !c
+    return c if (c == EOF || c >= " " || c == "\n")
+    return "\n" if (c == "\r")
+    return " "
 end
 
 # Get the next character without getting it.
 def peek()
-    lookaheadChar = $stdin.getc
-    $stdin.ungetc(lookaheadChar)
-    return lookaheadChar.chr
+    $lookahead = get
+    return $lookahead
 end
 
 # mynext -- get the next character, excluding comments.
@@ -73,29 +79,31 @@ end
 def mynext()
     c = get
     if (c == "/")
-        if(peek == "/")
+        case peek
+        when "/"
             while(true)
                 c = get
                 if (c <= "\n")
-                return c
+                    break
                 end
             end
-        end
-        if(peek == "*")
+        when "*"
             get
-            while(true)
+            while(c != " ")
                 case get
                 when "*"
-                   if (peek == "/")
+                    if (peek == "/")
                         get
-                        return " "
+                        c = " "
                     end
                 when EOF
-                    raise "Unterminated comment"
+                    raise "Unterminated comment."
                 end
             end
         end
     end
+    $theY = $theX
+    $theX = c
     return c
 end
 
@@ -106,42 +114,71 @@ end
 # single character. Wow! action recognizes a regular expression if it is
 # preceded by ( or , or =.
 def action(a)
-    if(a==1)
+    if (a == 1)
         $stdout.write $theA
+        if (
+            ($theY == "\n" || $theY == " ")  &&
+            ($theA == "+" || $theA == "-"|| $theA == "*"|| $theA == "/") &&
+            ($theB == "+" || $theB == "-"|| $theB == "*"|| $theB == "/")
+        )
+            $stdout.write $theY
+        end
     end
-    if(a==1 || a==2)
+    if (a == 1 || a == 2)
         $theA = $theB
-        if ($theA == "\'" || $theA == "\"")
+        if ($theA == "'" || $theA == "\"" || $theA == "`")
             while (true)
                 $stdout.write $theA
                 $theA = get
                 break if ($theA == $theB)
-                raise "Unterminated string literal" if ($theA <= "\n")
                 if ($theA == "\\")
                     $stdout.write $theA
                     $theA = get
                 end
+                raise "Unterminated string literal" if ($theA == EOF)
             end
         end
     end
-    if(a==1 || a==2 || a==3)
+    if (a == 1 || a == 2 || a == 3)
         $theB = mynext
         if ($theB == "/" && ($theA == "(" || $theA == "," || $theA == "=" ||
                              $theA == ":" || $theA == "[" || $theA == "!" ||
                              $theA == "&" || $theA == "|" || $theA == "?" ||
-                             $theA == "{" || $theA == "}" || $theA == ";" ||
-                             $theA == "\n"))
+                             $theA == "+" || $theA == "-" || $theA == "~" ||
+                             $theA == "*" || $theA == "/" ||
+                             $theA == "{" || $theA == "}" || $theA == ";"))
             $stdout.write $theA
+            if ($theA == "/" || $theA == "*")
+                $stdout.write " "
+            end
             $stdout.write $theB
             while (true)
                 $theA = get
-                if ($theA == "/")
+                if ($theA == "[")
+                    while (true)
+                        $stdout.write $theA
+                        $theA = get
+                        if ($theA == "]")
+                            break
+                        elsif ($theA == "\\")
+                            $stdout.write $theA
+                            $theA = get
+                        elsif ($theA == EOF)
+                            raise "Unterminated set in Regular Expression literal."
+                        end
+                    end
+                elsif ($theA == "/")
+                    case peek
+                    when "/", "*"
+                        raise "Unterminated set in Regular Expression literal."
+                    end
                     break
                 elsif ($theA == "\\")
                     $stdout.write $theA
                     $theA = get
-                elsif ($theA <= "\n")
-                    raise "Unterminated RegExp Literal"
+                end
+                if ($theA == EOF)
+                    raise "Unterminated Regular Expression Literal"
                 end
                 $stdout.write $theA
             end
@@ -167,7 +204,7 @@ def jsmin
             end
         when "\n"
             case ($theB)
-            when "{","[","(","+","-"
+            when "{","[","(","+","-","!","~"
                 action(1)
             when " "
                 action(3)
@@ -188,7 +225,7 @@ def jsmin
                 end
             when "\n"
                 case ($theA)
-                when "}","]",")","+","-","\"","\\", "'", '"'
+                when "}","]",")","+","-","\"","'","`"
                     action(1)
                 else
                     if (isAlphanum($theA))
