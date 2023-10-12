@@ -15,7 +15,6 @@ require 'logger'
 class AssetPackagerApplication < Rails::Application
   config.root = File.dirname(__FILE__)
   config.session_store :cookie_store, key: 'cookie_store_key'
-  secrets.secret_token    = 'secret_token'
   secrets.secret_key_base = 'secret_key_base'
   config.logger = Logger.new($stdout)
   Rails.logger  = config.logger
